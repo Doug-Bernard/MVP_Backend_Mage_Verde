@@ -1,29 +1,130 @@
 # Portal de Turismo Ecológico - Magé Verde Online
 
-**Magé Verde Online** é um portal de ecoturismo para o município de Magé (RJ). O projeto apresenta as principais atrações naturais da região — trilhas, cachoeiras, parques e eventos — e oferece uma API REST completa para gerenciamento dinâmico do conteúdo, com autenticação JWT para administradores e visitantes.
+API para gerenciar atrações turísticas do município de Magé (RJ), incluindo cadastro de lugares, avaliações, comentários, disponibilidade e autenticação.
 
 ---
 
-## Tecnologias Utilizadas
+## 🚀 Tecnologias
 
-### Backend
-- **Node.js** — Ambiente de execução JavaScript server-side
-- **Express** — Framework web para construção de APIs REST
-- **Prisma ORM** — Mapeamento objeto-relacional para banco de dados
-- **SQLite** — Banco de dados relacional leve
-- **JWT (JSON Web Token)** — Autenticação stateless
-- **Bcrypt.js** — Criptografia de senhas
-
-### Frontend
-- **HTML5** — Estruturação das páginas
-- **CSS3** — Estilização e layout responsivo
-- **JavaScript (Vanilla JS)** — Manipulação do DOM e integração com a API
+- **Node.js**
+- **Express**
+- **Prisma ORM**
+- **JWT**
+- **Bcrypt.js**
+- **SQLite**
 
 ---
 
-## Database (Prisma)
+## 📁 Estrutura do Projeto
 
-Arquivo `prisma/schema.prisma` com os seguintes models:
+```
+backend/
+  src/
+    config/
+      prisma.js
+    controllers/
+      authController.js
+      atracaoController.js
+      comentarioController.js
+      avaliacaoController.js
+      disponibilidadeController.js
+      novidadeController.js
+      visitanteController.js
+    middlewares/
+      authMiddleware.js
+      errorMiddleware.js
+      optionalVisitanteAuth.js
+      visitanteAuthMiddleware.js
+    routes/
+      index.js
+      authRoutes.js
+      atracaoRoutes.js
+      comentarioRoutes.js
+      avaliacaoRoutes.js
+      disponibilidadeRoutes.js
+      novidadeRoutes.js
+      visitanteRoutes.js
+    services/
+      authService.js
+      atracaoService.js
+      comentarioService.js
+      avaliacaoService.js
+      disponibilidadeService.js
+      novidadeService.js
+      visitanteService.js
+    app.js
+    server.js
+
+  prisma/
+    schema.prisma
+    seed.js
+
+MVP-Front-End-Development/
+  index.html
+  login.html
+  admin.html
+  cadastro.html
+  visitante-login.html
+  visitante.html
+  avaliar.html
+  css/
+  js/
+  assets/
+```
+
+---
+
+## 🔐 Autenticação
+
+- Registro e login de administradores.
+- Registro e login de visitantes.
+- Tokens JWT.
+- Middleware `authMiddleware`.
+- Middleware `visitanteAuthMiddleware`.
+
+---
+
+## 📍 Atrações
+
+- CRUD completo.
+- Ligação com comentários, avaliações e disponibilidade.
+- Filtro por tipo (TRILHA, CACHOEIRA, EVENTO).
+
+---
+
+## ⭐ Avaliações
+
+- Qualquer pessoa pode avaliar uma atração.
+- Visitante autenticado pode atualizar sua própria nota.
+- Retorna média e total de avaliações.
+
+---
+
+## 💬 Comentários
+
+- Cadastro público.
+- Visitante autenticado pode editar seus próprios comentários.
+- Administrador pode excluir qualquer comentário.
+
+---
+
+## 🕒 Disponibilidade
+
+- Define horários e status de funcionamento da atração.
+- Status: ABERTO, FECHADO, MANUTENCAO.
+
+---
+
+## 📰 Novidades
+
+- CRUD completo restrito a administradores.
+- Listagem pública ordenada por data.
+
+---
+
+## 🗄 Database (Prisma)
+
+Arquivo `prisma/schema.prisma` com todos os models:
 
 ```prisma
 model Administrador {
@@ -38,7 +139,7 @@ model Atracao {
   id             Int              @id @default(autoincrement())
   nome           String
   descricao      String
-  tipo           String           // TRILHA, CACHOEIRA, EVENTO
+  tipo           String
   localizacao    String
   imagem         String
   createdAt      DateTime         @default(now())
@@ -49,7 +150,7 @@ model Atracao {
 
 model Disponibilidade {
   id                Int      @id @default(autoincrement())
-  status            String   // ABERTO, FECHADO, MANUTENCAO
+  status            String
   horarioAbertura   String
   horarioFechamento String
   observacao        String?
@@ -83,7 +184,7 @@ model Comentario {
 model Avaliacao {
   id          Int      @id @default(autoincrement())
   nomeUsuario String
-  nota        Int      // Nota de 1 a 5
+  nota        Int
   createdAt   DateTime @default(now())
   atracaoId   Int
   atracao     Atracao  @relation(fields: [atracaoId], references: [id], onDelete: Cascade)
@@ -112,13 +213,6 @@ npm run prisma:seed
 npm run dev
 ```
 
-### Credenciais do Administrador Padrão (seed)
-
-| Campo  | Valor             |
-|--------|-------------------|
-| E-mail | admin2@gmail.com  |
-| Senha  | admin1234         |
-
 ---
 
 ## 📌 Rotas Principais
@@ -126,8 +220,9 @@ npm run dev
 ### 🔐 Auth
 
 **`POST /auth/register`**
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "nome": "Administrador",
@@ -135,16 +230,19 @@ Exemplo de Body:
   "senha": "123456"
 }
 ```
+</details>
 
 **`POST /auth/login`**
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "email": "admin@example.com",
   "senha": "123456"
 }
 ```
+</details>
 
 ---
 
@@ -152,15 +250,12 @@ Exemplo de Body:
 
 **`GET /atracoes`**
 
-Lista todas as atrações. Aceita filtro opcional: `?tipo=TRILHA` | `CACHOEIRA` | `EVENTO`.
-
 **`GET /atracoes/:id`**
 
-Retorna detalhes da atração, disponibilidade, comentários e média de avaliações.
+**`POST /atracoes`** 🔒 Admin
+<details>
+<summary>Exemplo de Body</summary>
 
-**`POST /atracoes`** 🔒 (Admin)
-
-Exemplo de Body:
 ```json
 {
   "nome": "Parque Nacional",
@@ -170,21 +265,23 @@ Exemplo de Body:
   "imagem": "https://exemplo.com/imagem.jpg"
 }
 ```
+</details>
 
-**`PUT /atracoes/:id`** 🔒 (Admin)
+**`PUT /atracoes/:id`** 🔒 Admin
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "nome": "Parque Nacional Atualizado",
   "descricao": "Trilhas ecológicas + área para piquenique",
   "tipo": "TRILHA",
-  "localizacao": "Magé, RJ - Brasil",
-  "imagem": "https://exemplo.com/nova-imagem.jpg"
+  "localizacao": "Magé, RJ - Brasil"
 }
 ```
+</details>
 
-**`DELETE /atracoes/:id`** 🔒 (Admin)
+**`DELETE /atracoes/:id`** 🔒 Admin
 
 ---
 
@@ -192,11 +289,10 @@ Exemplo de Body:
 
 **`GET /comentarios/:atracaoId`**
 
-Lista todos os comentários de uma atração.
-
 **`POST /comentarios`**
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "nomeUsuario": "Carlos",
@@ -204,25 +300,29 @@ Exemplo de Body:
   "atracaoId": 1
 }
 ```
+</details>
 
-**`PUT /comentarios/:id`** 🔒 (Visitante)
+**`PUT /comentarios/:id`** 🔒 Visitante
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "comentario": "Atualizei meu comentário!"
 }
 ```
+</details>
 
-**`DELETE /comentarios/:id`** 🔒 (Admin)
+**`DELETE /comentarios/:id`** 🔒 Admin
 
 ---
 
 ### ⭐ Avaliações
 
 **`POST /avaliacoes`**
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "nomeUsuario": "Carlos",
@@ -230,10 +330,9 @@ Exemplo de Body:
   "atracaoId": 1
 }
 ```
+</details>
 
 **`GET /avaliacoes/:atracaoId`**
-
-Retorna as avaliações e a média geral da atração.
 
 ---
 
@@ -241,9 +340,10 @@ Retorna as avaliações e a média geral da atração.
 
 **`GET /disponibilidade/:atracaoId`**
 
-**`POST /disponibilidade`** 🔒 (Admin)
+**`POST /disponibilidade`** 🔒 Admin
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "atracaoId": 1,
@@ -253,18 +353,20 @@ Exemplo de Body:
   "observacao": "Aberto somente pela manhã"
 }
 ```
+</details>
 
-**`PUT /disponibilidade/:id`** 🔒 (Admin)
+**`PUT /disponibilidade/:id`** 🔒 Admin
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "status": "MANUTENCAO",
   "horarioAbertura": "09:00",
-  "horarioFechamento": "15:00",
-  "observacao": "Em manutenção até novo aviso"
+  "horarioFechamento": "15:00"
 }
 ```
+</details>
 
 ---
 
@@ -272,27 +374,30 @@ Exemplo de Body:
 
 **`GET /novidades`**
 
-**`POST /novidades`** 🔒 (Admin)
+**`POST /novidades`** 🔒 Admin
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "titulo": "Reabertura da Trilha das Orquídeas",
   "descricao": "Após manutenção, a trilha está aberta ao público."
 }
 ```
+</details>
 
-**`PUT /novidades/:id`** 🔒 (Admin)
+**`PUT /novidades/:id`** 🔒 Admin
 
-**`DELETE /novidades/:id`** 🔒 (Admin)
+**`DELETE /novidades/:id`** 🔒 Admin
 
 ---
 
 ### 👤 Visitantes
 
 **`POST /visitantes/register`**
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "nome": "Carlos Silva",
@@ -301,22 +406,26 @@ Exemplo de Body:
   "cidade": "Magé, RJ"
 }
 ```
+</details>
 
 **`POST /visitantes/login`**
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "email": "carlos@email.com",
   "senha": "123456"
 }
 ```
+</details>
 
-**`GET /visitantes/profile`** 🔒 (Visitante)
+**`GET /visitantes/profile`** 🔒 Visitante
 
-**`PUT /visitantes/profile`** 🔒 (Visitante)
+**`PUT /visitantes/profile`** 🔒 Visitante
+<details>
+<summary>Exemplo de Body</summary>
 
-Exemplo de Body:
 ```json
 {
   "nome": "Carlos Atualizado",
@@ -324,73 +433,13 @@ Exemplo de Body:
   "foto": "https://exemplo.com/foto.jpg"
 }
 ```
+</details>
 
 ---
 
-## Autenticação
-
-### 🔒 Rotas Protegidas
-
-As rotas marcadas com 🔒 exigem token JWT no cabeçalho:
-
-```
-Authorization: Bearer <token>
-```
-
-- **Admin** — Token obtido em `POST /auth/login` (armazenar em `@PortalTurismo:token`)
-- **Visitante** — Token obtido em `POST /visitantes/login` (armazenar em `@PortalTurismo:visitanteToken`)
-
----
-
-## Arquitetura do Projeto
-
-```
-MVP_BACKEND(2)/
-├── backend/
-│   ├── prisma/
-│   │   ├── dev.db
-│   │   ├── schema.prisma
-│   │   └── seed.js
-│   ├── src/
-│   │   ├── config/
-│   │   │   └── prisma.js
-│   │   ├── controllers/
-│   │   ├── middlewares/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── app.js
-│   │   └── server.js
-│   ├── .env
-│   └── package.json
-│
-├── MVP-Front-End-Development/
-│   ├── index.html
-│   ├── login.html
-│   ├── admin.html
-│   ├── cadastro.html
-│   ├── visitante-login.html
-│   ├── visitante.html
-│   ├── avaliar.html
-│   ├── css/
-│   ├── js/
-│   ├── assets/
-│   └── README.md
-│
-└── README.md
-```
-
----
-
-## Equipe
+## 👥 Participantes do Projeto
 
 - Douglas Bernard Martins Teixeira da Silva
+- Luidi de Souza Pires
+- Mariana Martins da Silva
 - Mariana Oliveira Lopes
-
----
-
-## Status do Projeto
-
-✅ MVP Backend concluído — API REST funcional com todas as rotas, autenticação JWT e banco SQLite.  
-✅ MVP Frontend estruturado — Site estático com páginas HTML, CSS e integração parcial com a API.
-
-*Projeto acadêmico para as disciplinas de Desenvolvimento Web Front-End e MVP Back-End Development.*
