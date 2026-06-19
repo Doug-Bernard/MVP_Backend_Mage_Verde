@@ -1,14 +1,15 @@
 const express = require('express');
 const comentarioController = require('../controllers/comentarioController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const visitanteAuthMiddleware = require('../middlewares/visitanteAuthMiddleware');
+const optionalVisitanteAuth = require('../middlewares/optionalVisitanteAuth');
 
 const router = express.Router();
 
-// Rotas públicas
 router.get('/:atracaoId', comentarioController.listByAtracaoId);
-router.post('/', comentarioController.create);
+router.post('/', optionalVisitanteAuth, comentarioController.create);
 
-// Rotas protegidas (apenas admin)
+router.put('/:id', visitanteAuthMiddleware, comentarioController.update);
 router.delete('/:id', authMiddleware, comentarioController.delete);
 
 module.exports = router;

@@ -1,10 +1,10 @@
 const express = require('express');
 const avaliacaoController = require('../controllers/avaliacaoController');
+const optionalVisitanteAuth = require('../middlewares/optionalVisitanteAuth');
 
 const router = express.Router();
 
-// Rotas públicas (qualquer visitante do portal pode avaliar)
 router.get('/:atracaoId', avaliacaoController.listByAtracaoId);
-router.post('/', avaliacaoController.create);
+router.post('/', optionalVisitanteAuth, avaliacaoController.create);
 
 module.exports = router;

@@ -4,7 +4,8 @@ class ComentarioController {
   async create(req, res, next) {
     try {
       const { nomeUsuario, comentario, atracaoId } = req.body;
-      const novoComentario = await comentarioService.create({ nomeUsuario, comentario, atracaoId });
+      const visitanteId = req.visitanteId || null;
+      const novoComentario = await comentarioService.create({ nomeUsuario, comentario, atracaoId }, visitanteId);
       res.status(201).json(novoComentario);
     } catch (error) {
       next(error);
@@ -21,10 +22,21 @@ class ComentarioController {
     }
   }
 
+  async update(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { comentario } = req.body;
+      const atualizado = await comentarioService.update(id, req.visitanteId, { comentario });
+      res.status(200).json(atualizado);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const response = await comentarioService.delete(id);
+      const response = await comentarioService.delete(id, req.visitanteId);
       res.status(200).json(response);
     } catch (error) {
       next(error);

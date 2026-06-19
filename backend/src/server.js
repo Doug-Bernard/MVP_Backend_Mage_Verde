@@ -6,7 +6,6 @@ const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(`===================================================`);
   console.log(` Servidor rodando com sucesso na porta ${PORT}`);
-  console.log(` Acesse a documentação para testar os endpoints`);
   console.log(`===================================================`);
 });
 

@@ -1,7 +1,7 @@
 const prisma = require('../config/prisma');
 
 class AvaliacaoService {
-  async create(data) {
+  async create(data, visitanteId) {
     const { nomeUsuario, nota, atracaoId } = data;
 
     const parsedAtracaoId = parseInt(atracaoId, 10);
@@ -24,7 +24,6 @@ class AvaliacaoService {
       throw error;
     }
 
-    // Verificar se a atração existe
     const atracao = await prisma.atracao.findUnique({
       where: { id: parsedAtracaoId },
     });
@@ -35,12 +34,26 @@ class AvaliacaoService {
       throw error;
     }
 
-    // Criar avaliação
+    if (visitanteId) {
+      const existente = await prisma.avaliacao.findFirst({
+        where: { atracaoId: parsedAtracaoId, visitanteId },
+      });
+
+      if (existente) {
+        const atualizada = await prisma.avaliacao.update({
+          where: { id: existente.id },
+          data: { nota: parsedNota, nomeUsuario },
+        });
+        return atualizada;
+      }
+    }
+
     const novaAvaliacao = await prisma.avaliacao.create({
       data: {
         nomeUsuario,
         nota: parsedNota,
         atracaoId: parsedAtracaoId,
+        visitanteId: visitanteId || null,
       },
     });
 
@@ -55,23 +68,22 @@ class AvaliacaoService {
       throw error;
     }
 
-    // Buscar todas as avaliações
     const avaliacoes = await prisma.avaliacao.findMany({
       where: { atracaoId: parsedAtracaoId },
+      include: {
+        visitante: {
+          select: { id: true, nome: true, foto: true },
+        },
+      },
       orderBy: {
         createdAt: 'desc',
       },
     });
 
-    // Calcular a média
     const agregacao = await prisma.avaliacao.aggregate({
       where: { atracaoId: parsedAtracaoId },
-      _avg: {
-        nota: true,
-      },
-      _count: {
-        nota: true,
-      },
+      _avg: { nota: true },
+      _count: { nota: true },
     });
 
     const media = agregacao._avg.nota ? Number(agregacao._avg.nota.toFixed(1)) : 0;

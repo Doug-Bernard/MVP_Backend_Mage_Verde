@@ -4,7 +4,8 @@ class AvaliacaoController {
   async create(req, res, next) {
     try {
       const { nomeUsuario, nota, atracaoId } = req.body;
-      const novaAvaliacao = await avaliacaoService.create({ nomeUsuario, nota, atracaoId });
+      const visitanteId = req.visitanteId || null;
+      const novaAvaliacao = await avaliacaoService.create({ nomeUsuario, nota, atracaoId }, visitanteId);
       res.status(201).json(novaAvaliacao);
     } catch (error) {
       next(error);

@@ -18,12 +18,12 @@ async function main() {
 
   // 2. Criar Administrador Padrão
   const salt = await bcrypt.genSalt(10);
-  const senhaCriptografada = await bcrypt.hash('admin123', salt);
+  const senhaCriptografada = await bcrypt.hash('admin1234', salt);
 
   const admin = await prisma.administrador.create({
     data: {
       nome: 'Administrador do Portal',
-      email: 'admin@gmail.com',
+      email: 'admin2@gmail.com',
       senha: senhaCriptografada,
     },
   });
