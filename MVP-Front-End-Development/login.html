@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magé Verde - Login</title>
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="shortcut icon" href="public/favicon.ico" type="image/x-icon">
+  <script defer src="js/login.js"></script>
+</head>
+
+<body>
+  <main class="main">
+    <a href="index.html" class="back">← Voltar</a>
+    <section class="loginBanner">
+      <h2 class="loginBannerTitle">Magé Verde Online</h2>
+      <p class="loginBannerText">Conectando você com o paisagismo e a natureza do nosso município.</p>
+    </section>
+    <section class="loginFormWrapper">
+      <h2 class="loginTitle">Bem-vindo de volta</h2>
+      <form class="loginForm">
+        <label for="email" class="formLabel">
+          Email
+          <input id="email" class="formInput" placeholder="Digite seu E-mail" type="email" name="emailInput" required />
+        </label>
+        <label for="password" class="formLabel">
+          Senha
+          <input id="password" class="formInput" placeholder="Digite sua senha" type="password" name="passwordInput" required
+            minlength="6" maxlength="12" />
+        </label>
+        <button class="formBtn" type="submit">Entrar</button>
+      </form>
+    </section>
+  </main>
+</body>
+
+</html>
