@@ -1,130 +1,29 @@
 # Portal de Turismo Ecológico - Magé Verde Online
 
-API para gerenciar atrações turísticas do município de Magé (RJ), incluindo cadastro de lugares, avaliações, comentários, disponibilidade e autenticação.
+Magé Verde Online é um portal de ecoturismo para o município de Magé (RJ). O projeto apresenta as principais atrações naturais da região — trilhas, cachoeiras, parques e eventos — e oferece uma API REST completa para gerenciamento dinâmico do conteúdo, com autenticação JWT para administradores e visitantes.
 
 ---
 
-## 🚀 Tecnologias
+## Tecnologias Utilizadas
 
-- **Node.js**
-- **Express**
-- **Prisma ORM**
-- **JWT**
-- **Bcrypt.js**
-- **SQLite**
+### Backend
+- **Node.js** — Ambiente de execução JavaScript server-side
+- **Express** — Framework web para construção de APIs REST
+- **Prisma ORM** — Mapeamento objeto-relacional para banco de dados
+- **SQLite** — Banco de dados relacional leve
+- **JWT (JSON Web Token)** — Autenticação stateless
+- **Bcrypt.js** — Criptografia de senhas
 
----
-
-## 📁 Estrutura do Projeto
-
-```
-backend/
-  src/
-    config/
-      prisma.js
-    controllers/
-      authController.js
-      atracaoController.js
-      comentarioController.js
-      avaliacaoController.js
-      disponibilidadeController.js
-      novidadeController.js
-      visitanteController.js
-    middlewares/
-      authMiddleware.js
-      errorMiddleware.js
-      optionalVisitanteAuth.js
-      visitanteAuthMiddleware.js
-    routes/
-      index.js
-      authRoutes.js
-      atracaoRoutes.js
-      comentarioRoutes.js
-      avaliacaoRoutes.js
-      disponibilidadeRoutes.js
-      novidadeRoutes.js
-      visitanteRoutes.js
-    services/
-      authService.js
-      atracaoService.js
-      comentarioService.js
-      avaliacaoService.js
-      disponibilidadeService.js
-      novidadeService.js
-      visitanteService.js
-    app.js
-    server.js
-
-  prisma/
-    schema.prisma
-    seed.js
-
-MVP-Front-End-Development/
-  index.html
-  login.html
-  admin.html
-  cadastro.html
-  visitante-login.html
-  visitante.html
-  avaliar.html
-  css/
-  js/
-  assets/
-```
+### Frontend
+- **HTML5** — Estruturação das páginas
+- **CSS3** — Estilização e layout responsivo
+- **JavaScript (Vanilla JS)** — Manipulação do DOM e integração com a API
 
 ---
 
-## 🔐 Autenticação
+## Database (Prisma)
 
-- Registro e login de administradores.
-- Registro e login de visitantes.
-- Tokens JWT.
-- Middleware `authMiddleware`.
-- Middleware `visitanteAuthMiddleware`.
-
----
-
-## 📍 Atrações
-
-- CRUD completo.
-- Ligação com comentários, avaliações e disponibilidade.
-- Filtro por tipo (TRILHA, CACHOEIRA, EVENTO).
-
----
-
-## ⭐ Avaliações
-
-- Qualquer pessoa pode avaliar uma atração.
-- Visitante autenticado pode atualizar sua própria nota.
-- Retorna média e total de avaliações.
-
----
-
-## 💬 Comentários
-
-- Cadastro público.
-- Visitante autenticado pode editar seus próprios comentários.
-- Administrador pode excluir qualquer comentário.
-
----
-
-## 🕒 Disponibilidade
-
-- Define horários e status de funcionamento da atração.
-- Status: ABERTO, FECHADO, MANUTENCAO.
-
----
-
-## 📰 Novidades
-
-- CRUD completo restrito a administradores.
-- Listagem pública ordenada por data.
-
----
-
-## 🗄 Database (Prisma)
-
-Arquivo `prisma/schema.prisma` com todos os models:
+Arquivo `prisma/schema.prisma` com os seguintes models:
 
 ```prisma
 model Administrador {
@@ -139,7 +38,7 @@ model Atracao {
   id             Int              @id @default(autoincrement())
   nome           String
   descricao      String
-  tipo           String
+  tipo           String           // TRILHA, CACHOEIRA, EVENTO
   localizacao    String
   imagem         String
   createdAt      DateTime         @default(now())
@@ -150,7 +49,7 @@ model Atracao {
 
 model Disponibilidade {
   id                Int      @id @default(autoincrement())
-  status            String
+  status            String   // ABERTO, FECHADO, MANUTENCAO
   horarioAbertura   String
   horarioFechamento String
   observacao        String?
@@ -184,7 +83,7 @@ model Comentario {
 model Avaliacao {
   id          Int      @id @default(autoincrement())
   nomeUsuario String
-  nota        Int
+  nota        Int      // Nota de 1 a 5
   createdAt   DateTime @default(now())
   atracaoId   Int
   atracao     Atracao  @relation(fields: [atracaoId], references: [id], onDelete: Cascade)
@@ -212,6 +111,13 @@ npx prisma migrate dev --name init
 npm run prisma:seed
 npm run dev
 ```
+
+### Credenciais do Administrador Padrão (seed)
+
+| Campo  | Valor             |
+|--------|-------------------|
+| E-mail | admin2@gmail.com  |
+| Senha  | admin1234         |
 
 ---
 
@@ -250,9 +156,13 @@ npm run dev
 
 **`GET /atracoes`**
 
+Lista todas as atrações. Aceita filtro opcional: `?tipo=TRILHA | CACHOEIRA | EVENTO`.
+
 **`GET /atracoes/:id`**
 
-**`POST /atracoes`** 🔒 Admin
+Retorna detalhes da atração, disponibilidade, comentários e média de avaliações.
+
+**`POST /atracoes`** 🔒 (Admin)
 <details>
 <summary>Exemplo de Body</summary>
 
@@ -267,7 +177,7 @@ npm run dev
 ```
 </details>
 
-**`PUT /atracoes/:id`** 🔒 Admin
+**`PUT /atracoes/:id`** 🔒 (Admin)
 <details>
 <summary>Exemplo de Body</summary>
 
@@ -276,18 +186,21 @@ npm run dev
   "nome": "Parque Nacional Atualizado",
   "descricao": "Trilhas ecológicas + área para piquenique",
   "tipo": "TRILHA",
-  "localizacao": "Magé, RJ - Brasil"
+  "localizacao": "Magé, RJ - Brasil",
+  "imagem": "https://exemplo.com/nova-imagem.jpg"
 }
 ```
 </details>
 
-**`DELETE /atracoes/:id`** 🔒 Admin
+**`DELETE /atracoes/:id`** 🔒 (Admin)
 
 ---
 
 ### 💬 Comentários
 
 **`GET /comentarios/:atracaoId`**
+
+Lista todos os comentários de uma atração.
 
 **`POST /comentarios`**
 <details>
@@ -302,7 +215,7 @@ npm run dev
 ```
 </details>
 
-**`PUT /comentarios/:id`** 🔒 Visitante
+**`PUT /comentarios/:id`** 🔒 (Visitante)
 <details>
 <summary>Exemplo de Body</summary>
 
@@ -313,7 +226,7 @@ npm run dev
 ```
 </details>
 
-**`DELETE /comentarios/:id`** 🔒 Admin
+**`DELETE /comentarios/:id`** 🔒 (Admin)
 
 ---
 
@@ -334,13 +247,15 @@ npm run dev
 
 **`GET /avaliacoes/:atracaoId`**
 
+Retorna as avaliações e a média geral da atração.
+
 ---
 
 ### 📅 Disponibilidade
 
 **`GET /disponibilidade/:atracaoId`**
 
-**`POST /disponibilidade`** 🔒 Admin
+**`POST /disponibilidade`** 🔒 (Admin)
 <details>
 <summary>Exemplo de Body</summary>
 
@@ -355,7 +270,7 @@ npm run dev
 ```
 </details>
 
-**`PUT /disponibilidade/:id`** 🔒 Admin
+**`PUT /disponibilidade/:id`** 🔒 (Admin)
 <details>
 <summary>Exemplo de Body</summary>
 
@@ -363,7 +278,8 @@ npm run dev
 {
   "status": "MANUTENCAO",
   "horarioAbertura": "09:00",
-  "horarioFechamento": "15:00"
+  "horarioFechamento": "15:00",
+  "observacao": "Em manutenção até novo aviso"
 }
 ```
 </details>
@@ -374,7 +290,7 @@ npm run dev
 
 **`GET /novidades`**
 
-**`POST /novidades`** 🔒 Admin
+**`POST /novidades`** 🔒 (Admin)
 <details>
 <summary>Exemplo de Body</summary>
 
@@ -386,9 +302,9 @@ npm run dev
 ```
 </details>
 
-**`PUT /novidades/:id`** 🔒 Admin
+**`PUT /novidades/:id`** 🔒 (Admin)
 
-**`DELETE /novidades/:id`** 🔒 Admin
+**`DELETE /novidades/:id`** 🔒 (Admin)
 
 ---
 
@@ -420,9 +336,9 @@ npm run dev
 ```
 </details>
 
-**`GET /visitantes/profile`** 🔒 Visitante
+**`GET /visitantes/profile`** 🔒 (Visitante)
 
-**`PUT /visitantes/profile`** 🔒 Visitante
+**`PUT /visitantes/profile`** 🔒 (Visitante)
 <details>
 <summary>Exemplo de Body</summary>
 
@@ -437,9 +353,70 @@ npm run dev
 
 ---
 
-## 👥 Participantes do Projeto
+## Autenticação
+
+### 🔒 Rotas Protegidas
+
+As rotas marcadas com 🔒 exigem token JWT no cabeçalho:
+
+```
+Authorization: Bearer <token>
+```
+
+- **Admin** — Token obtido em `POST /auth/login` (armazenar em `@PortalTurismo:token`)
+- **Visitante** — Token obtido em `POST /visitantes/login` (armazenar em `@PortalTurismo:visitanteToken`)
+
+---
+
+## Arquitetura do Projeto
+
+```
+MVP_BACKEND(2)/
+├── backend/
+│   ├── prisma/
+│   │   ├── dev.db
+│   │   ├── schema.prisma
+│   │   └── seed.js
+│   ├── src/
+│   │   ├── config/
+│   │   │   └── prisma.js
+│   │   ├── controllers/
+│   │   ├── middlewares/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── app.js
+│   │   └── server.js
+│   ├── .env
+│   └── package.json
+│
+├── MVP-Front-End-Development/
+│   ├── index.html
+│   ├── login.html
+│   ├── admin.html
+│   ├── cadastro.html
+│   ├── visitante-login.html
+│   ├── visitante.html
+│   ├── avaliar.html
+│   ├── css/
+│   ├── js/
+│   ├── assets/
+│   └── README.md
+│
+└── README.md
+```
+
+---
+
+## Equipe
 
 - Douglas Bernard Martins Teixeira da Silva
-- Luidi de Souza Pires
-- Mariana Martins da Silva
 - Mariana Oliveira Lopes
+
+---
+
+## Status do Projeto
+
+✅ MVP Backend concluído — API REST funcional com todas as rotas, autenticação JWT e banco SQLite.
+✅ MVP Frontend estruturado — Site estático com páginas HTML, CSS e integração parcial com a API.
+
+*Projeto acadêmico para as disciplinas de Desenvolvimento Web Front-End e MVP Back-End Development.*
