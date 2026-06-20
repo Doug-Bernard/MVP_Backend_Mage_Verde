@@ -33,6 +33,12 @@ Arquivo `prisma/schema.prisma` com todos os models
 | Senha  | admin1234         |
 
 ---
+### Credenciais do Visitante Padrão (seed)
+
+| Campo  | Valor             |
+|--------|-------------------|
+| E-mail | maria@test.com  |
+| Senha  | 123456         |
 
 ## 📌 Rotas Principais
 
